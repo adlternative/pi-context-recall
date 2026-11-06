@@ -1,0 +1,30 @@
+{
+  "name": "pi-context-recall",
+  "version": "0.1.0",
+  "description": "Recall original current-branch messages via a local CLI, Skill and tool-free Pi context bridge",
+  "type": "module",
+  "private": true,
+  "keywords": [
+    "pi-package"
+  ],
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "test:pi": "node --test test/pi.integration.mjs",
+    "test:live": "node --test test/pi.live.mjs",
+    "test:scenarios": "node --test test/pi.scenarios.mjs"
+  }
+}
