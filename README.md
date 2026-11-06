@@ -9,18 +9,43 @@ to use it through existing `bash`; a thin extension supplies the live session
 file and branch leaf. **No extra agent tools, archive or database.**
 It does not reverse summaries or replace Pi's compaction.
 
-## Try locally, without installing
+## Install
 
 Requires Pi, **Node.js ≥22.19.0**, local bash and a saved Pi v3 session.
-No separate `npm install` is needed. From this source directory:
+The package is not on npm; install it from this repository.
+
+```bash
+pi install git:github.com/adlternative/pi-context-recall
+```
+
+This writes a personal declaration to `~/.pi/agent/settings.json` and installs the
+extension **and** the bundled Skill. Add `--local` to write `.pi/settings.json`
+for this project instead; Pi loads project declarations after project trust.
+
+```bash
+pi list     # confirm the package and its checkout path
+pi remove git:github.com/adlternative/pi-context-recall
+```
+
+Try it once without touching settings:
+
+```bash
+pi -e git:github.com/adlternative/pi-context-recall
+```
+
+Restart Pi, or run `/reload` if the package was installed while Pi was running.
+Do not use `--no-session`: recall needs a saved session file.
+
+## Try the source locally
+
+From this source directory, with no install at all:
 
 ```bash
 pi -e ./
 ```
 
-This loads the extension **and** bundled Skill for that invocation only.
-Do not use `--no-session`. Nothing is installed globally or added to settings.
-The package has not been published; these commands use a local source copy.
+This loads the extension and bundled Skill for that invocation only. Nothing is
+added to settings. Do not use `--no-session`.
 
 Ask:
 

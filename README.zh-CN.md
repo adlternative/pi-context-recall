@@ -8,18 +8,42 @@ CLI 检索 Pi 已保存的原文，Skill 教 agent 通过已有 `bash` 使用，
 薄扩展传递当前会话文件和分支叶节点。**不新增 agent 工具，不另建归档或数据库。**
 这不是把摘要逆向解压，也不接管 Pi 的压缩。
 
-## 本地试用，不安装
+## 安装
 
 需要 Pi、**Node.js ≥22.19.0**、本地 bash 和已保存的 Pi v3 会话。
-无需另外执行 `npm install`。在源码目录运行：
+包尚未发布到 npm，从本仓库安装：
+
+```bash
+pi install git:github.com/adlternative/pi-context-recall
+```
+
+会写入个人设置 `~/.pi/agent/settings.json`，同时安装扩展和内置 Skill。
+加 `--local` 则写入本项目的 `.pi/settings.json`；Pi 在授予项目信任后才加载项目声明。
+
+```bash
+pi list     # 确认包和本地检出路径
+pi remove git:github.com/adlternative/pi-context-recall
+```
+
+只想试用一次、不写设置：
+
+```bash
+pi -e git:github.com/adlternative/pi-context-recall
+```
+
+安装后重启 Pi；若 Pi 正在运行，执行 `/reload`。
+不要使用 `--no-session`：召回依赖已保存的会话文件。
+
+## 本地源码试用
+
+在源码目录运行，完全不用安装：
 
 ```bash
 pi -e ./
 ```
 
-扩展和 Skill 会一起加载，仅对本次运行有效。
-不要使用 `--no-session`。不会全局安装，也不会写入设置。
-项目尚未发布；以上命令使用本地源码。
+扩展和 Skill 一起加载，仅对本次运行有效，不写入设置。
+不要使用 `--no-session`。
 
 直接问 agent：
 
