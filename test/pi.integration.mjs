@@ -292,13 +292,15 @@ test("stub compaction replaces the summarizer call and leaves originals retrieva
   };
   const event = { type: "session_before_compact", preparation, branchEntries: sm.getBranch(),
     reason: "manual", willRetry: false, signal: new AbortController().signal };
+  let settings = {};
   const runner = new ExtensionRunner(loaded.extensions, loaded.runtime, root, sm, {});
+  runner.bindCore({ getSettings: () => settings }, {}, {});
 
-  delete process.env.PI_CONTEXT_RECALL_STUB_COMPACT;
   assert.equal(await runner.emit(event), undefined, "Stub mode must be opt-in");
+  settings = { contextRecall: { stubCompaction: "true" } };
+  assert.equal(await runner.emit(event), undefined, "Only a boolean true may enable it");
 
-  process.env.PI_CONTEXT_RECALL_STUB_COMPACT = "1";
-  t.after(() => { delete process.env.PI_CONTEXT_RECALL_STUB_COMPACT; });
+  settings = { contextRecall: { stubCompaction: true } };
   const result = await runner.emit(event);
   assert.equal(result.compaction.firstKeptEntryId, kept);
   assert.equal(result.compaction.tokensBefore, 12345);

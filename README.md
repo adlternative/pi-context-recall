@@ -38,21 +38,29 @@ Do not use `--no-session`: recall needs a saved session file.
 
 ## Test mode: skip the summarizer
 
-Setting `PI_CONTEXT_RECALL_STUB_COMPACT` replaces the compaction model call with a
-fixed placeholder that tells the model how to read the archived originals. Useful
-when a provider call hangs and you want to keep working, or to test recall without
-paying for a summary.
+Adding `contextRecall.stubCompaction` to the Pi settings replaces the compaction
+model call with a fixed placeholder that tells the model how to read the archived
+originals. Useful when a provider call hangs and you want to keep working, or to
+test recall without paying for a summary.
 
-```bash
-PI_CONTEXT_RECALL_STUB_COMPACT=1 pi
+```json
+{
+  "contextRecall": {
+    "stubCompaction": true
+  }
+}
 ```
+
+Put it in `~/.pi/agent/settings.json`, or in a project `.pi/settings.json` while the
+project is trusted. Then restart Pi or run `/reload`. Only a boolean `true` enables
+it; `"true"` as a string is ignored. Unknown top-level keys are preserved by Pi.
 
 - Pi still picks the cut point (`firstKeptEntryId`); only the summary text is replaced.
 - No model request is made, so the checkpoint reports no usage and finishes instantly.
 - The placeholder contains **no facts** about the conversation, and no conversation
   text. The next model turn starts without a summary and must call the CLI.
 - The archived prefix is still readable, and `overview` shows the checkpoint row.
-- This is a test aid: it is off unless the variable is set, and it does not make
+- This is a test aid: it is off unless the setting is present, and it does not make
   ordinary compaction summaries better or cheaper in normal use.
 
 ## Try the source locally

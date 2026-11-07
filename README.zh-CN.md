@@ -36,18 +36,26 @@ pi -e git:github.com/adlternative/pi-context-recall
 
 ## 测试模式：跳过摘要模型
 
-设置 `PI_CONTEXT_RECALL_STUB_COMPACT` 后，压缩不再调用模型，而写入一段固定占位说明，
+在 Pi 设置中加入 `contextRecall.stubCompaction`，压缩不再调用模型，而写入一段固定占位说明，
 告诉模型如何用 CLI 读取已归档的原文。适用于供应商调用卡住、或只想验证召回时。
 
-```bash
-PI_CONTEXT_RECALL_STUB_COMPACT=1 pi
+```json
+{
+  "contextRecall": {
+    "stubCompaction": true
+  }
+}
 ```
+
+写入 `~/.pi/agent/settings.json`，或写入已授信项目的 `.pi/settings.json`。
+然后重启 Pi 或执行 `/reload`。只有布尔 `true` 生效，字符串 `"true"` 会被忽略。
+Pi 写设置时会保留这类自定义顶层键。
 
 - 切点仍由 Pi 决定（`firstKeptEntryId`），只替换摘要文本。
 - 不发起任何模型请求，检查点不报告 usage，瞬时完成。
 - 占位文本**不含**对话事实，也不含对话原文；下一轮模型没有摘要信息，必须自己调 CLI。
 - 归档前缀仍可读取，`overview` 会把该检查点作为一行显示。
-- 仅测试用途：不设变量就不生效，也不会让正常压缩更便宜或更好。
+- 仅测试用途：不写该配置就不生效，也不会让正常压缩更便宜或更好。
 
 ## 本地源码试用
 
