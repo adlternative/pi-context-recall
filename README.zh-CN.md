@@ -34,6 +34,21 @@ pi -e git:github.com/adlternative/pi-context-recall
 安装后重启 Pi；若 Pi 正在运行，执行 `/reload`。
 不要使用 `--no-session`：召回依赖已保存的会话文件。
 
+## 测试模式：跳过摘要模型
+
+设置 `PI_CONTEXT_RECALL_STUB_COMPACT` 后，压缩不再调用模型，而写入一段固定占位说明，
+告诉模型如何用 CLI 读取已归档的原文。适用于供应商调用卡住、或只想验证召回时。
+
+```bash
+PI_CONTEXT_RECALL_STUB_COMPACT=1 pi
+```
+
+- 切点仍由 Pi 决定（`firstKeptEntryId`），只替换摘要文本。
+- 不发起任何模型请求，检查点不报告 usage，瞬时完成。
+- 占位文本**不含**对话事实，也不含对话原文；下一轮模型没有摘要信息，必须自己调 CLI。
+- 归档前缀仍可读取，`overview` 会把该检查点作为一行显示。
+- 仅测试用途：不设变量就不生效，也不会让正常压缩更便宜或更好。
+
 ## 本地源码试用
 
 在源码目录运行，完全不用安装：

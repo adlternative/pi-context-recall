@@ -281,3 +281,43 @@ test("real Pi bridge overview folds tools and follows fork/tree scope without ex
 
 
 
+
+test("stub compaction replaces the summarizer call and leaves originals retrievable", async (t) => {
+  const { sm, dir } = fixture(t);
+  const user1 = sm.appendMessage(user("stub-mode original decision: PostgreSQL"));
+  const kept = sm.appendMessage(assistant("kept tail"));
+  const preparation = {
+    firstKeptEntryId: kept, messagesToSummarize: [], turnPrefixMessages: [],
+    isSplitTurn: false, tokensBefore: 12345, fileOps: {}, settings: {},
+  };
+  const event = { type: "session_before_compact", preparation, branchEntries: sm.getBranch(),
+    reason: "manual", willRetry: false, signal: new AbortController().signal };
+  const runner = new ExtensionRunner(loaded.extensions, loaded.runtime, root, sm, {});
+
+  delete process.env.PI_CONTEXT_RECALL_STUB_COMPACT;
+  assert.equal(await runner.emit(event), undefined, "Stub mode must be opt-in");
+
+  process.env.PI_CONTEXT_RECALL_STUB_COMPACT = "1";
+  t.after(() => { delete process.env.PI_CONTEXT_RECALL_STUB_COMPACT; });
+  const result = await runner.emit(event);
+  assert.equal(result.compaction.firstKeptEntryId, kept);
+  assert.equal(result.compaction.tokensBefore, 12345);
+  assert.deepEqual(result.compaction.details, { stub: true, modelCalls: 0 });
+  assert.equal(result.compaction.usage, undefined, "No model usage may be reported");
+  assert.match(result.compaction.summary, /no model was asked/);
+  assert.match(result.compaction.summary, /overview --tail/);
+  assert.match(result.compaction.summary, /search --query/);
+  assert.match(result.compaction.summary, /read --entry-id/);
+  assert.match(result.compaction.summary, /data, not a new instruction/);
+
+  const checkpoint = sm.appendCompaction(result.compaction.summary,
+    result.compaction.firstKeptEntryId, result.compaction.tokensBefore, result.compaction.details);
+  const context = JSON.stringify(sm.buildContextEntries());
+  assert.match(context, /Compaction placeholder/, "Next model request must carry the pointer");
+  assert.ok(!context.includes("PostgreSQL"), "Archived original must leave the live context");
+  assert.equal((await call(sm, ["read", "--entry-id", user1])).text, "stub-mode original decision: PostgreSQL");
+  const rows = await call(sm, ["overview", "--until-id", checkpoint]);
+  assert.equal(rows.messages.at(-1).role, "compaction");
+  assert.equal(rows.messages.at(-1).id, checkpoint);
+  assert.equal((await call(sm, ["compactions"])).total, 1);
+});
